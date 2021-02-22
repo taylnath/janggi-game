@@ -10,6 +10,7 @@ class JanggiGame:
         "Initialize the game with a populated board."
 
         self._board = JanggiBoard()
+        self._player = "B"
 
         for player in ["R", "B"]:
             General(player, self._board)
@@ -27,44 +28,29 @@ class JanggiGame:
 
         return self._board
 
+    def make_move(self, move_from, move_to):
+        """
+        Attempts to move a piece located at move_from location to 
+        the move_to location.
+        """
+
+        # get the piece at the move_from location
+        piece = self._board.get_piece(move_from)
+
+        # return False if there is no piece at move_from
+        if piece is None:
+            return False
+
+        # if the piece is not owned by the current player, return False
+        if piece.get_player() != self._player:
+            return False
+
+        print(self._board.loc_to_tuple("b5"))
+        print(self._board.tuple_to_loc((1,4)))
+
 g = JanggiGame()
 g.get_board().print_board()
-
-# b = JanggiBoard()
-# e = Elephant("R", 1, b)
-# b.print_board()
-
-# columns = { 
-#     'a': 0, 
-#     'b': 1, 
-#     'c': 2, 
-#     'd': 3,
-#     'e': 4,
-#     'f': 5,
-#     'g': 6,
-#     'h': 7,
-#     'i': 8
-# }
-# rows = {
-#     '1': 0,
-#     '2': 1,
-#     '3': 2,
-#     '4': 3,
-#     '5': 4,
-#     '6': 5,
-#     '7': 6,
-#     '8': 7,
-#     '9': 8,
-#     '10': 9
-# }
-# board = {column + row: None for column in columns for row in rows}
-# def get_pos_tuple(pos):
-#     """
-#     Converts the position "b5", for example, to the position tuple 
-#     (1,4) (column, row).
-#     """
-
-#     return (columns[pos[0]], rows[pos[1:]])
+g.make_move("c7", "c6")
 
 # e = Elephant('B', 1)
 # e2 = Elephant('B', 2)
