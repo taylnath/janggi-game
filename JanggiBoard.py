@@ -1,5 +1,90 @@
 # the Janggi Board
 
+class JanggiPosition:
+    """
+    A class to represent a position on the Janggi game board.
+    """
+
+    def __init__(self, pos, board:JanggiBoard):
+        """
+        Initialize the position. pos can be either a tuple or a 
+        string representing the position. If the position is not 
+        on the board, both _loc and _tuple are set to None.
+        """
+
+        self._board = board
+
+        self.set_pos(pos)
+
+    def __repr__(self):
+        "Return the position's string location."
+
+        return self._loc
+
+    def set_pos(self, pos):
+        """
+        Set the position. pos can be either a tuple or a 
+        string representing the position. If the position is not 
+        on the board, both _loc and _tuple are set to None.
+        """
+
+        if type(pos) == str:
+            self._loc = self.tuple_to_loc(self.loc_to_tuple(pos))
+            self._tuple = self.loc_to_tuple(pos)
+        else:
+            self._loc = self.tuple_to_loc(pos)
+            self._tuple = self.loc_to_tuple(self.tuple_to_loc(pos))
+
+
+    def tuple_to_loc(self, tup:tuple):
+        """
+        Convert the tuple to a location on the board.
+        Returns None if the location is not valid.
+        """
+
+        return self._board.tuple_to_loc(tup)
+
+    def loc_to_tuple(self, loc:str):
+        """
+        Converts the location string to a tuple on the board.
+        Returns None if the location is not valid.
+        """
+
+        return self._board.loc_to_tuple(loc)
+
+
+    def get_tuple(self) -> tuple:
+        "Returns the position's tuple representation."
+
+        return self._tuple
+
+    def get_loc(self) -> str:
+        "Returns the position's string representation."
+
+        return self._loc
+
+    def add_tuples(self, tup1:tuple, tup2:tuple) -> tuple:
+        """
+        Performs vector addition on the two tuples, and 
+        returns the sum.
+        For example, (1,2) + (0,1) = (1,3).
+        """
+        if tup1 is None or tup2 is None:
+            return None
+
+        return (tup1[0] + tup2[0], tup1[1] + tup2[1])
+
+
+    def shift(self, movement:tuple):
+        """
+        Shifts the position by the movement tuple (using vector 
+        addition.)
+        """
+
+        new_tuple = self.add_tuples(self._tuple, movement)
+
+        self.set_pos(new_tuple)
+
 class JanggiBoard:
     "A class to represent the Janggi game board."
 
@@ -12,7 +97,7 @@ class JanggiBoard:
         self._board = {column + row: None for column in self._columns for row in self._rows}
         self._palace = [col + str(row) for row in [1,2,3,8,9,10] for col in ['d', 'e', 'f']]
 
-    def move_piece(self, piece, loc):
+    def move_piece(self, piece, loc:JanggiPosition):
         """
         Moves the (piece) to the given location (loc).
         Returns the piece which was captured, or None 
@@ -38,6 +123,10 @@ class JanggiBoard:
         Converts the position "b5", for example, to the position tuple 
         (1,4) (column, row).
         """
+        if pos is None:
+            return None
+        if pos[0] not in self._columns or pos[1:] not in self._rows:
+            return None
 
         return (self._columns[pos[0]], self._rows[pos[1:]])
 
@@ -46,11 +135,15 @@ class JanggiBoard:
         Converts the tuple (1,4), for example, to the position 
         string "b5". If the tuple is not on the board, returns None.
         """
+        if tup is None:
+            return None
+
+        if tup[0] not in self._rev_columns:
+            return None
+        if tup[1] not in self._rev_rows:
+            return None
 
         loc = self._rev_columns[tup[0]] + self._rev_rows[tup[1]]
-
-        if loc not in self._board:
-            return None
 
         return loc
 
@@ -58,10 +151,28 @@ class JanggiBoard:
         """
         Returns the piece at the given location (for 
         example "b5".) Returns None if there is no 
-        piece at that location.
+        piece at that location, or if the location is invalid.
         """
 
+        if loc not in self._board:
+            return None
+
         return self._board[loc]
+
+    def get_player(self, loc):
+        """
+        Returns the player who owns the piece at the given location.
+        Returns None if there is no piece there.
+        """
+        if loc is None:
+            return None
+
+        piece = self.get_piece(loc)
+
+        if piece is None:
+            return None
+
+        return piece.get_player()
 
     def place_piece(self, loc, piece):
         """
