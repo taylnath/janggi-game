@@ -2,6 +2,7 @@
 # Date: 2/19/2021
 # Description: A Python implementation of Janggi.
 from JanggiPieces import *
+from JanggiMechanic import JanggiMechanic
 
 class JanggiGame:
     "A class to represent the Janggi game."

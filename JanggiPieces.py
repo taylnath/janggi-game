@@ -1,6 +1,7 @@
 # pieces for the Janggi game
 
-from JanggiBoard import JanggiBoard, JanggiPosition
+from JanggiBoard import JanggiBoard
+from JanggiPosition import JanggiPosition
 
 class Piece:
     """
@@ -19,56 +20,57 @@ class Piece:
 
         # get the piece's starting location
         if player in location and number in location[player]:
-            self._loc = JanggiPosition(location[player][number], board)
+            self._pos = JanggiPosition(location[player][number], board)
         else:
-            self._loc = "invalid location"
+            self._pos = JanggiPosition("invalid location", board)
 
         # place the piece on the board
         self._board = board
-        self._board.place_piece(self._loc, self)
+        self.place_piece()
 
-    def get_name(self):
+    def place_piece(self):
+        """
+        Used by __init__ to initially place the piece on the board. 
+        Attempts to place the given piece at the given position.
+        Returns False and changes nothing if there is already a piece at the position, 
+        otherwise returns True and places the piece.
+        """
+        loc = self._pos.get_loc()
+
+        # the second if also checks this condition
+        if not self._board.loc_on_board(loc):
+            return False
+
+        if self._board.get_piece(loc) is not None:
+            return False
+
+        self._board.set_piece(self, loc)
+        return True
+
+    def get_name(self) -> str:
         "Returns the piece's name."
 
         return self._name
 
-    def get_player(self):
+    def get_player(self) -> str:
         "Returns the player that owns this piece."
 
         return self._name[0]
+    
+    def get_pos(self) -> JanggiPosition:
+        "Returns the piece's current position."
 
-    def get_loc(self):
+        return self._pos
+
+    def get_loc(self) -> str:
         "Returns the piece's current location."
 
-        return self._loc
+        return self._pos.get_loc()
     
-    def set_loc(self, loc):
-        "Sets the current location of the piece."
+    def set_pos(self, pos:JanggiPosition):
+        "Sets the current position of the piece."
 
-        self._loc = loc
-
-    # def get_paths(self):
-    #     """
-    #     If the piece is in the palace, returns the possible paths 
-    #     for this piece in the palace. Otherwise returns the normal 
-    #     possible paths for the piece. 
-    #     """
-
-    #     # get the relative paths of the piece
-    #     relative_paths = self._paths["normal"]
-    #     if self._board.in_palace(self._loc):
-    #         relative_paths += self._paths["palace"]
-
-    #     loc_tuple = self._board.loc_to_tuple(self._loc)
-
-    #     tuple_paths = [(loc_tuple[0] + move[0], loc_tuple[1] + move[1]) for path in relative_paths for move in path]
-    #     paths = [self._board.tuple_to_loc(tuple_move) for tuple_move in tuple_paths]
-    #     valid_paths = [move for move in paths if move is not None]
-
-    #     print(tuple_paths)
-    #     print(paths)
-
-    #     return valid_paths
+        self._pos = pos
 
 
 class Elephant(Piece):
@@ -155,40 +157,59 @@ class Horse(Piece):
 
         super().__init__(player, number, "H", location, board)
 
-    def get_move(self, start_loc, movement_tuple):
-        """
-        Simulates moving from 
-        start_loc by the offset movement_tuple. Returns a tuple
-        containing the end location and the owner of the piece at 
-        the destination (or None if there is no destination piece),
-        i.e. returns (loc, player).
-        """
+    # def get_move(self, start_loc, movement_tuple):
+    #     """
+    #     Simulates moving from 
+    #     start_loc by the offset movement_tuple. Returns a tuple
+    #     containing the end location and the owner of the piece at 
+    #     the destination (or None if there is no destination piece),
+    #     i.e. returns (loc, player).
+    #     """
 
-        start_tuple = self._board.loc_to_tuple(start_loc)
-        end_tuple = self.add_tuples(start_tuple, movement_tuple)
-        end_loc = self._board.tuple_to_loc(end_tuple)
-        end_piece = self._board.get_piece(end_loc)
-        if end_piece is None:
-            end_player = None
-        else:
-            end_player = end_piece.get_player()
+    #     start_tuple = self._board.loc_to_tuple(start_loc)
+    #     end_tuple = self.add_tuples(start_tuple, movement_tuple)
+    #     end_loc = self._board.tuple_to_loc(end_tuple)
+    #     end_piece = self._board.get_piece(end_loc)
+    #     if end_piece is None:
+    #         end_player = None
+    #     else:
+    #         end_player = end_piece.get_player()
 
-        return (end_loc, end_player)
+    #     return (end_loc, end_player)
 
-    def get_moves(self):
-        "Returns a list of valid moves for this Horse."
+    def get_moves(self) -> list:
+        "Returns a list of valid moves for this Horse"
 
         valid_moves = []
 
-        for initial_move in self._paths:
-            initial_loc, initial_player = self.get_move(self._loc, initial_move)
-            if initial_player is None:
-                for second_move in self._paths[initial_move]:
-                    second_loc, second_player = self.get_move(initial_loc, second_move)
+        for first_move in self._paths:
+            first_pos = self._pos.shift(first_move)
+            first_player = self._board.get_player(first_pos.get_loc())
+            if first_player is None:
+                for second_move in self._paths[first_move]:
+                    second_pos = first_pos.shift(second_move)
+                    second_loc = second_pos.get_loc()
+                    second_player = self._board.get_player(second_loc)
                     if second_player != self.get_player() and second_loc is not None:
                         valid_moves.append(second_loc)
 
         return valid_moves
+
+
+    # def get_moves(self):
+    #     "Returns a list of valid moves for this Horse."
+
+    #     valid_moves = []
+
+    #     for initial_move in self._paths:
+    #         initial_loc, initial_player = self.get_move(self._loc, initial_move)
+    #         if initial_player is None:
+    #             for second_move in self._paths[initial_move]:
+    #                 second_loc, second_player = self.get_move(initial_loc, second_move)
+    #                 if second_player != self.get_player() and second_loc is not None:
+    #                     valid_moves.append(second_loc)
+
+    #     return valid_moves
 
         # for initial_move in self._paths:
         #     initial_tuple = self.add_tuples(loc_tuple, initial_move)
@@ -231,16 +252,13 @@ class Soldier(Piece):
 
         # get the relative moves of the piece
         relative_moves = self._moves["normal"]
-        if self._board.in_palace(self._loc):
+        if self._board.in_palace(self._pos.get_loc()):
             relative_moves += self._moves["palace"]
-
-        loc_tuple = self._board.loc_to_tuple(self._loc)
 
         valid_moves = []
 
         for movement in relative_moves:
-            move_tuple = (loc_tuple[0] + movement[0], loc_tuple[1] + movement[1])
-            move = self._board.tuple_to_loc(move_tuple)
+            move = self._pos.shift(movement).get_loc()
             if self._board.get_player(move) == self.get_player():
                 move = None
             if move is not None:

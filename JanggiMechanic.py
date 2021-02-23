@@ -1,7 +1,5 @@
-# the Janggi Board
-
-class JanggiBoard:
-    "A class to represent the Janggi game board."
+class JanggiMechanic:
+    "A class to update the Janggi game board."
 
     def __init__(self):
 
@@ -12,45 +10,45 @@ class JanggiBoard:
         self._board = {column + row: None for column in self._columns for row in self._rows}
         self._palace = [col + str(row) for row in [1,2,3,8,9,10] for col in ['d', 'e', 'f']]
 
-    def loc_on_board(self, loc):
+    def move_piece(self, piece, loc:JanggiPosition):
         """
-        Returns True if the location is on the board. Returns False 
-        otherwise.
-        """
-
-        if loc in self._board:
-            return True
-
-        return False
-
-    def tuple_on_board(self, tup):
-        """
-        Returns True if the tuple is on the board. Returns False otherwise.
+        Moves the (piece) to the given location (loc).
+        Returns the piece which was captured, or None 
+        if no piece was captured.
         """
 
-        loc = self.tuple_to_loc(tup)
+        # save the captured piece
+        captured_piece = self._board[loc]
 
-        return self.loc_on_board(loc)
+        # clear the old location
+        self._board[piece.get_loc()] = None
 
-    # TODO: move these conversions to JanggiPosition class
-    def loc_to_tuple(self, loc):
+        # move to new location
+        self._board[loc] = piece
+
+        # update new location
+        piece.set_loc(loc)
+
+        return captured_piece
+
+    def loc_to_tuple(self, pos):
         """
-        Converts the string location "b5", for example, to the position tuple 
-        (1,4) (column, row). Returns None if the location is invalid.
+        Converts the position "b5", for example, to the position tuple 
+        (1,4) (column, row).
         """
-        if loc is None or len(loc) < 2:
+        if pos is None:
             return None
-        if loc[0] not in self._columns or loc[1:] not in self._rows:
+        if pos[0] not in self._columns or pos[1:] not in self._rows:
             return None
 
-        return (self._columns[loc[0]], self._rows[loc[1:]])
+        return (self._columns[pos[0]], self._rows[pos[1:]])
 
-    def tuple_to_loc(self, tup:tuple):
+    def tuple_to_loc(self, tup):
         """
         Converts the tuple (1,4), for example, to the position 
         string "b5". If the tuple is not on the board, returns None.
         """
-        if tup is None or len(tup) < 2:
+        if tup is None:
             return None
 
         if tup[0] not in self._rev_columns:
@@ -74,17 +72,6 @@ class JanggiBoard:
 
         return self._board[loc]
 
-    def set_piece(self, piece, loc):
-        """
-        Moves (piece) to (loc) on the board. Does nothing if loc 
-        is not on the board. Does not check legality of the move.
-        """
-
-        if loc not in self._board:
-            return None
-
-        self._board[loc] = piece
-
     def get_player(self, loc):
         """
         Returns the player who owns the piece at the given location.
@@ -100,13 +87,28 @@ class JanggiBoard:
 
         return piece.get_player()
 
-    def in_palace(self, loc):
+    def place_piece(self, loc, piece):
+        """
+        Attempts to place the given piece at the given location.
+        Returns False and changes nothing if there is already a piece at the location, 
+        otherwise returns True and places the piece.
+        """
+        if loc not in self._board:
+            return False
+
+        if self._board[loc] is not None:
+            return False
+
+        self._board[loc] = piece
+        return True
+
+    def in_palace(self, location):
         """
         Returns True if the given location (for example "e3") 
         is in the palace. Returns False otherwise.
         """
 
-        if loc in self._palace:
+        if location in self._palace:
             return True
         return False
 
@@ -167,4 +169,3 @@ class JanggiBoard:
             for col in self._columns:
                 self.print_piece(col + row)
             print()
-
