@@ -11,6 +11,7 @@ rev_cols = {val:key for key, val in cols.items()}
 rev_rows = {val:key for key, val in rows.items()}
 
 board = {col + row: tk.StringVar() for col in rev_cols for row in rev_rows}
+buttons = {col + row: None for col in rev_cols for row in rev_rows}
 
 def update_board():
     b = g.get_board()
@@ -23,7 +24,13 @@ def update_board():
         else:
             board[name].set(piece.get_name())
 
-update_board()
+
+def clear_colors():
+    global buttons
+
+    for name in buttons:
+        buttons[name].configure(bg = "#F0F0F0")
+        buttons[name].configure(activebackground = "#F0F0F0")
 
 move_from = True
 from_loc = ""
@@ -35,10 +42,18 @@ def select_move(selection):
     if move_from:
         move_from = False
         from_loc = selection
+        piece = g.get_board().get_piece(from_loc)
+        if piece is not None:
+            for move in piece.get_moves():
+                buttons[move].configure(bg="red")
+                buttons[move].configure(activebackground="red")
     else:
         move_from = True
         g.make_move(from_loc, selection)
         update_board()
+        clear_colors()
+
+# create the window
 
 for col in cols:
         # column labels
@@ -70,7 +85,10 @@ for col in cols:
             btn = tk.Button(master=frame, textvariable=board[name], command= lambda txt=name: select_move(txt))
         else:
             btn = tk.Button(master=frame, textvariable = board[name], command=lambda txt=name: select_move(txt))
-        # board[col + ro] = btn
+        buttons[name] = btn
         btn.pack()
 
-window.mainloop()
+if __name__ == "__main__":
+    update_board()
+    clear_colors()
+    window.mainloop()
