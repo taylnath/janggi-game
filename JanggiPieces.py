@@ -135,11 +135,6 @@ class Cannon(Piece):
 
         location = {"R": {1: "b3", 2: "h3"}, "B": {1: "b8", 2: "h8"}}
 
-        paths = {
-            "normal":
-                [[(i,j)] for i in range(-8,9) for j in range(-9,10)
-                    if i*j == 0 and (i != 0 or j != 0)]
-        }
         # movement direction vectors
         self._directions = [(1,0), (-1,0), (0,1), (0,-1)]
 
@@ -233,18 +228,6 @@ class Cannon(Piece):
                 valid_moves.append(move)
 
         return valid_moves
-
-        # for direction in self._movement:
-        #     step = self._pos.shift(direction)
-        #     if not self.pos_on_board(step):
-        #         continue
-        #     if 
-        #     # keep going until a piece is found
-        #     while self.get_pos_player(step) is None:
-        #         if not self.pos_on_board(step.shift(direction)):
-        #             break
-        #         step = step.shift(direction)
-            
 
 class Horse(Piece):
     "A class to represent the Horse piece."
