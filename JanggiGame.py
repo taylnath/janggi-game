@@ -1,7 +1,8 @@
 # Author: Nathan Taylor
 # Date: 2/19/2021
 # Description: A Python implementation of Janggi.
-from JanggiPieces import *
+from JanggiPieces import Elephant, Advisor, Chariot, Cannon, Horse, General, Soldier
+from JanggiBoard import JanggiBoard
 from JanggiMechanic import JanggiMechanic
 
 class JanggiGame:

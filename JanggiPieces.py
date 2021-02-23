@@ -2,6 +2,7 @@
 
 from JanggiBoard import JanggiBoard
 from JanggiPosition import JanggiPosition
+from JanggiMechanic import JanggiMechanic
 
 class Piece:
     """
@@ -26,26 +27,8 @@ class Piece:
 
         # place the piece on the board
         self._board = board
-        self.place_piece()
-
-    def place_piece(self):
-        """
-        Used by __init__ to initially place the piece on the board. 
-        Attempts to place the given piece at the given position.
-        Returns False and changes nothing if there is already a piece at the position, 
-        otherwise returns True and places the piece.
-        """
-        loc = self._pos.get_loc()
-
-        # the second if also checks this condition
-        if not self._board.loc_on_board(loc):
-            return False
-
-        if self._board.get_piece(loc) is not None:
-            return False
-
-        self._board.set_piece(self, loc)
-        return True
+        mechanic = JanggiMechanic(self._board)
+        mechanic.place_piece(self)
 
     def get_name(self) -> str:
         "Returns the piece's name."

@@ -1,5 +1,4 @@
 from JanggiBoard import JanggiBoard
-from JanggiPieces import Piece
 
 class JanggiMechanic:
     "A class to update the Janggi game board."
@@ -8,7 +7,26 @@ class JanggiMechanic:
 
         self._board = board
 
-    def move_piece(self, piece:Piece, loc:str):
+    def place_piece(self, piece):
+        """
+        Used to initially place a piece on the board. 
+        Attempts to place the given piece at the given position.
+        Returns False and changes nothing if there is already a piece at the position, 
+        otherwise returns True and places the piece.
+        """
+        loc = piece.get_loc()
+
+        # the second if also checks this condition
+        if not self._board.loc_on_board(loc):
+            return False
+
+        if self._board.get_piece(loc) is not None:
+            return False
+
+        self._board.set_piece(piece, loc)
+        return True
+
+    def move_piece(self, piece, loc:str):
         """
         Moves the (piece) to the given location (loc).
         Returns the piece which was captured, or None 
