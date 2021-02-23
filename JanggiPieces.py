@@ -96,9 +96,40 @@ class General(Piece):
 
         location = {"R": {1: "e2"}, "B": {1: "e9"}}
 
-        paths = {}
+        self._moves = {
+            "d8": ["e8", "d9", "e9"],
+            "e8": ["d8", "f8", "e9"],
+            "f8": ["e8", "e9", "f9"],
+            "d9": ["d8", "e9", "d10"],
+            "e9": ["d8", "e8", "f8", "d9", "f9", "d10", "e10", "f10"],
+            "f9": ["f8", "e9", "f10"],
+            "d10": ["d9", "e9", "e10"],
+            "e10": ["e9", "d10", "f10"],
+            "f10": ["e9", "f9", "e10"],
+            "d3": ["e3", "d2", "e2"],
+            "e3": ["d3", "f3", "e2"],
+            "f3": ["e3", "e2", "f2"],
+            "d2": ["d3", "e2", "d1"],
+            "e2": ["d3", "e3", "f3", "d2", "f2", "d1", "e1", "f1"],
+            "f2": ["f3", "e2", "f1"],
+            "d1": ["d2", "e2", "e1"],
+            "e1": ["e2", "d1", "f1"],
+            "f1": ["e2", "f2", "e1"],
+        }
 
         super().__init__(player, 1, "G", location, board)
+
+    def get_moves(self):
+        "Returns a list of valid moves for the General."
+
+        valid_moves = []
+
+        # for palace_move in self._palace_moves[self.get_loc()]:
+        #     if palace_move in valid_moves:
+        #         continue
+        #     if self._board.get_player(palace_move) == self.get_player():
+        #         continue
+        #     valid_moves.append(palace_move)
 
 class Advisor(Piece):
     "A class to represent the Advisor piece."
@@ -326,25 +357,14 @@ class Soldier(Piece):
         else:
             direction = -1
 
+        # extra moves when in the palace
         self._palace_moves = {
-            "d8": ["e9", "d9", "e8"],
-            "e8": ["d8", "f8", "e9"],
-            "f8": ["e9", "f9", "e8"],
-            "d9": ["e9", "d10"],
-            "e9": ["d9", "f9", "d10", "e10", "f10"],
-            "f9": ["e9", "f10"],
-            "d10": ["e10"],
-            "e10": ["d10", "f10"],
-            "f10": ["e10"],
-            "d3": ["e2", "d2", "e3"],
-            "e3": ["d3", "f3", "e2"],
-            "f3": ["e2", "f2", "e3"],
-            "d2": ["e2", "d1"],
-            "e2": ["d2", "f2", "d1", "e1", "f1"],
-            "f2": ["e2", "f1"],
-            "d1": ["e1"],
-            "e1": ["d1", "f1"],
-            "f1": ["e1"]
+            "d8": ["e9"],
+            "f8": ["e9"],
+            "e9": ["d10", "f10"],
+            "d3": ["e2"],
+            "f3": ["e2"],
+            "e2": ["d1", "f1"]
         }
 
         # normal movement
