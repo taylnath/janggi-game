@@ -74,6 +74,81 @@ class Piece:
 
         return self._board.get_player(pos.get_loc())
 
+    def is_open(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5")
+        as input. Returns True if the position is valid and doesn't contain a piece.
+        Returns False otherwise. 
+        """
+
+        if type(pos) == JanggiPosition:
+            loc = pos.get_loc()
+        else:
+            loc = pos
+
+        if not self._board.loc_on_board(loc):
+            return False
+
+        return self._board.get_piece(loc) is None
+
+    def is_us(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5") 
+        as input. Returns True if the position contains a piece owned by 
+        the current player. Returns False otherwise. 
+        """
+
+        if type(pos) == JanggiPosition:
+            loc = pos.get_loc()
+        else:
+            loc = pos
+
+        return self._board.get_player(loc) == self.get_player()
+
+    def is_not_us(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5") 
+        as input. Returns True if the position does not contain a piece owned by 
+        the current player. Returns False otherwise. 
+        """
+
+        if type(pos) == JanggiPosition:
+            loc = pos.get_loc()
+        else:
+            loc = pos
+
+        return self._board.get_player(loc) != self.get_player()
+
+    def is_opponent(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5") 
+        as input. Returns True if the position contains a piece owned by 
+        the opposite player. Returns False otherwise. 
+        """
+
+        return self.is_not_us(pos) and (not self.is_open(pos))
+
+    def is_piece(self, pos:JanggiPosition):
+        """
+        Returns True if the position contains a piece owned by 
+        either player. Returns False otherwise. 
+        """
+
+        return self.get_pos_player(pos) is not None
+
+    def ok_to_move_here(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5") 
+        as input. Returns True if the position is on the board and 
+        does not contain a piece owned by the current player. 
+        Returns False otherwise. 
+        """
+
+        if type(pos) == str:
+            pos = JanggiPosition(pos, self._board)
+
+        return self.pos_on_board(pos) and self.is_not_us(pos)
+
 class Elephant(Piece):
     """
     A class to represent the Elephant piece.
@@ -180,12 +255,12 @@ class Chariot(Piece):
 
         for step in self.get_step(start, direction):
             # if we reach our own piece, stop here
-            if self.get_pos_player(step) == self.get_player():
+            if self.is_us(step):
                 return
 
             # if we reach the opponents piece, return the location
             # then stop here
-            if self.get_pos_player(step) is not None:
+            if self.is_opponent(step):
                 yield step.get_loc()
                 return
 
@@ -260,7 +335,7 @@ class Cannon(Piece):
                 return False
 
             # if we find a non-cannon piece, return the position
-            if self.get_pos_player(step) is not None:
+            if self.is_piece(step):
                 return step
         # no pieces found
         return False
@@ -283,12 +358,12 @@ class Cannon(Piece):
                 return
 
             # if we reach our own piece, stop here
-            if self.get_pos_player(step) == self.get_player():
+            if self.is_us(step):
                 return
 
             # if we reach the opponents piece, return the location
             # then stop here
-            if self.get_pos_player(step) is not None:
+            if self.is_opponent(step):
                 yield step.get_loc()
                 return
 
@@ -330,13 +405,11 @@ class Horse(Piece):
 
         for first_move in self._movement:
             first_pos = self._pos.shift(first_move)
-            if self.get_pos_player(first_pos) is None:
+            if self.is_open(first_pos):
                 for second_move in self._movement[first_move]:
                     second_pos = first_pos.shift(second_move)
-                    second_player = self.get_pos_player(second_pos)
-                    # check that the destination doesn't have one of our own team
-                    # also check the destination is on the board
-                    if second_player != self.get_player() and self.pos_on_board(second_pos):
+                    # add the move if it is valid
+                    if self.ok_to_move_here(second_pos):
                         valid_moves.append(second_pos.get_loc())
 
         return valid_moves
@@ -357,6 +430,9 @@ class Soldier(Piece):
         else:
             direction = -1
 
+        # normal movement
+        self._movement = [(1, 0), (-1, 0), (0, direction)]
+
         # extra moves when in the palace
         self._palace_moves = {
             "d8": ["e9"],
@@ -367,9 +443,6 @@ class Soldier(Piece):
             "e2": ["d1", "f1"]
         }
 
-        # normal movement
-        self._movement = [(1, 0), (-1, 0), (0, direction)]
-
         super().__init__(player, number, "S", location, board)
 
     def get_moves(self):
@@ -378,18 +451,15 @@ class Soldier(Piece):
         valid_moves = []
 
         for movement in self._movement:
-            move = self._pos.shift(movement).get_loc()
-            if self._board.get_player(move) == self.get_player():
-                move = None
-            if move is not None:
-                valid_moves.append(move)
-        
+            move = self._pos.shift(movement)
+            # add the move if valid
+            if self.ok_to_move_here(move):
+                valid_moves.append(move.get_loc())
+
         if self.get_loc() in self._palace_moves:
             for palace_move in self._palace_moves[self.get_loc()]:
-                if palace_move in valid_moves:
-                    continue
-                if self._board.get_player(palace_move) == self.get_player():
-                    continue
-                valid_moves.append(palace_move)
+                # add the move if valid
+                if self.ok_to_move_here(palace_move):
+                    valid_moves.append(palace_move)
 
         return valid_moves
