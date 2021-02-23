@@ -159,9 +159,36 @@ class Elephant(Piece):
 
         location = {"R": {1: "b1", 2: "g1"}, "B": {1: "b10", 2: "g10"}}
 
-        paths = {}
+        self._movement = {
+            (0,1): [(1,1), (-1,1)], 
+            (0,-1): [(1,-1), (-1,-1)], 
+            (1,0): [(1,1), (1,-1)],
+            (-1,0): [(-1,1), (-1,-1)]
+        }
 
         super().__init__(player, number, "E", location, board)
+
+    def get_moves(self) -> list:
+        "Returns a list of valid moves for this Elephant."
+
+        valid_moves = []
+
+        # try the first move in each direction
+        for first_move in self._movement:
+            first_pos = self._pos.shift(first_move)
+            # if the first position is open, check the next moves
+            if self.is_open(first_pos):
+                # there are two options for second move: diagonal right or diagonal left
+                for second_move in self._movement[first_move]:
+                    second_pos = first_pos.shift(second_move)
+                    # if the second position is open, repeat the second move
+                    if self.is_open(second_pos):
+                        third_pos = second_pos.shift(second_move)
+                        # add the move if it is valid
+                        if self.ok_to_move_here(third_pos):
+                            valid_moves.append(third_pos.get_loc())
+
+        return valid_moves
 
 class General(Piece):
     " A class to represent the General piece."
@@ -199,12 +226,13 @@ class General(Piece):
 
         valid_moves = []
 
-        # for palace_move in self._palace_moves[self.get_loc()]:
-        #     if palace_move in valid_moves:
-        #         continue
-        #     if self._board.get_player(palace_move) == self.get_player():
-        #         continue
-        #     valid_moves.append(palace_move)
+        if self.get_loc() in self._moves:
+            for move in self._moves[self.get_loc()]:
+                # add the move if valid
+                if self.ok_to_move_here(move):
+                    valid_moves.append(move)
+        
+        return valid_moves
 
 class Advisor(Piece):
     "A class to represent the Advisor piece."
@@ -214,9 +242,41 @@ class Advisor(Piece):
 
         location = {"R": {1: "d1", 2: "f1"}, "B": {1: "d10", 2: "f10"}}
 
-        paths = {}
+        self._moves = {
+            "d8": ["e8", "d9", "e9"],
+            "e8": ["d8", "f8", "e9"],
+            "f8": ["e8", "e9", "f9"],
+            "d9": ["d8", "e9", "d10"],
+            "e9": ["d8", "e8", "f8", "d9", "f9", "d10", "e10", "f10"],
+            "f9": ["f8", "e9", "f10"],
+            "d10": ["d9", "e9", "e10"],
+            "e10": ["e9", "d10", "f10"],
+            "f10": ["e9", "f9", "e10"],
+            "d3": ["e3", "d2", "e2"],
+            "e3": ["d3", "f3", "e2"],
+            "f3": ["e3", "e2", "f2"],
+            "d2": ["d3", "e2", "d1"],
+            "e2": ["d3", "e3", "f3", "d2", "f2", "d1", "e1", "f1"],
+            "f2": ["f3", "e2", "f1"],
+            "d1": ["d2", "e2", "e1"],
+            "e1": ["e2", "d1", "f1"],
+            "f1": ["e2", "f2", "e1"],
+        }
 
         super().__init__(player, number, "A", location, board)
+
+    def get_moves(self):
+        "Returns a list of valid moves for the Advisor."
+
+        valid_moves = []
+
+        if self.get_loc() in self._moves:
+            for move in self._moves[self.get_loc()]:
+                # add the move if valid
+                if self.ok_to_move_here(move):
+                    valid_moves.append(move)
+        
+        return valid_moves
 
 class Chariot(Piece):
     "A class to represent a Chariot piece."
@@ -403,9 +463,12 @@ class Horse(Piece):
 
         valid_moves = []
 
+        # try moving in each direction
         for first_move in self._movement:
             first_pos = self._pos.shift(first_move)
+            # if the first move is clear, move on to second move
             if self.is_open(first_pos):
+                # there are two possible second moves: diagonal right or diagonal left
                 for second_move in self._movement[first_move]:
                     second_pos = first_pos.shift(second_move)
                     # add the move if it is valid
