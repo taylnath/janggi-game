@@ -67,8 +67,10 @@ class Piece:
 
         return self._pos.get_loc()
     
-    def set_pos(self, pos:JanggiPosition):
+    def set_pos(self, loc:str):
         "Sets the current position of the piece."
+
+        pos = JanggiPosition(loc, self._board)
 
         self._pos = pos
 

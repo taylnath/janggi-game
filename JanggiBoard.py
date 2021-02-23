@@ -74,10 +74,19 @@ class JanggiBoard:
 
         return self._board[loc]
 
+    def clear_loc(self, loc:str):
+        """
+        Clears the location (loc) on the board (sets its value to None).
+        Does nothing if (loc) is not on the board.
+        """
+
+        self.set_piece(None, loc)
+
     def set_piece(self, piece, loc):
         """
         Moves (piece) to (loc) on the board. Does nothing if loc 
         is not on the board. Does not check legality of the move.
+        Does not clear the piece's old location.
         """
 
         if loc not in self._board:

@@ -12,6 +12,7 @@ class JanggiGame:
 
         self._board = JanggiBoard()
         self._player = "B"
+        self._mechanic = JanggiMechanic(self._board)
 
         for player in ["R", "B"]:
             General(player, self._board)
@@ -56,7 +57,7 @@ class JanggiGame:
         if move_to not in piece.get_moves():
             return False
 
-        self._board.move_piece(piece, move_to)
+        self._mechanic.move_piece(piece, move_to)
         
         return True
 
