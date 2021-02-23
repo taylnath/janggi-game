@@ -103,7 +103,10 @@ class Chariot(Piece):
 
         location = {"R": {1: "a1", 2: "i1"}, "B": {1: "a10", 2: "i10"}}
 
-        paths = {}
+        paths = {
+            "normal": [[(i,j)] for i in range(-8,9) for j in range(-9,10)
+                    if i*j == 0 and (i != 0 or j != 0)]
+        }
 
         super().__init__(player, number, "C", location, board)
 
@@ -174,28 +177,50 @@ class Soldier(Piece):
         else:
             direction = -1
 
-        self._moves = {
-            "normal": [(1, 0), (-1, 0), (0, direction)],
-            "palace": [(1, direction), (-1, direction)]
+        self._palace_moves = {
+            "d8": ["e9", "d9", "e8"],
+            "e8": ["d8", "f8", "e9"],
+            "f8": ["e9", "f9", "e8"],
+            "d9": ["e9", "d10"],
+            "e9": ["d9", "f9", "d10", "e10", "f10"],
+            "f9": ["e9", "f10"],
+            "d10": ["e10"],
+            "e10": ["d10", "f10"],
+            "f10": ["e10"],
+            "d3": ["e2", "d2", "e3"],
+            "e3": ["d3", "f3", "e2"],
+            "f3": ["e2", "f2", "e3"],
+            "d2": ["e2", "d1"],
+            "e2": ["d2", "f2", "d1", "e1", "f1"],
+            "f2": ["e2", "f1"],
+            "d1": ["e1"],
+            "e1": ["d1", "f1"],
+            "f1": ["e1"]
         }
+
+        # normal movement
+        self._movement = [(1, 0), (-1, 0), (0, direction)]
 
         super().__init__(player, number, "S", location, board)
 
     def get_moves(self):
         "Returns a list of valid moves for this Soldier."
 
-        # get the relative moves of the piece
-        relative_moves = self._moves["normal"]
-        if self._board.in_palace(self._pos.get_loc()):
-            relative_moves += self._moves["palace"]
-
         valid_moves = []
 
-        for movement in relative_moves:
+        for movement in self._movement:
             move = self._pos.shift(movement).get_loc()
             if self._board.get_player(move) == self.get_player():
                 move = None
             if move is not None:
                 valid_moves.append(move)
+        
+        if self.get_loc() in self._palace_moves:
+            for palace_move in self._palace_moves[self.get_loc()]:
+                if palace_move in valid_moves:
+                    continue
+                if self._board.get_player(palace_move) == self.get_player():
+                    continue
+                valid_moves.append(palace_move)
 
         return valid_moves
