@@ -61,28 +61,23 @@ class JanggiGame:
         
         return True
 
-
+def mm(game, from_loc, to_loc):
+    input()
+    print(game.make_move(from_loc, to_loc))
+    game.get_board().print_board()
 g = JanggiGame()
 g.get_board().print_board()
-input()
-print(g.make_move("c7", "d6"))
-print('here')
-g.get_board().print_board()
-input()
-print(g.make_move("c7", "c6"))
-g.get_board().print_board()
-input()
-print(g.make_move("c6", "c5"))
-g.get_board().print_board()
-input()
-print(g.make_move("c5", "c4"))
-g.get_board().print_board()
-input()
-print(g.make_move("c4", "c3"))
-g.get_board().print_board()
-input()
-print(g.make_move("c3", "d3"))
-g.get_board().print_board()
-input()
-print(g.make_move("d3", "e2"))
-g.get_board().print_board()
+
+# move horse
+mm(g, "c10", "d8")
+mm(g, "d8", "e7")
+mm(g, "d8", "c6")
+
+# move soldier 
+mm(g, "c7", "d6")
+mm(g, "c7", "c6")
+mm(g, "c6", "c5")
+mm(g, "c5", "c4")
+mm(g, "c4", "c3")
+mm(g, "c3", "d3")
+mm(g, "d3", "e2")
