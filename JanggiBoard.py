@@ -12,7 +12,7 @@ class JanggiBoard:
         self._board = {column + row: None for column in self._columns for row in self._rows}
         self._palace = [col + str(row) for row in [1,2,3,8,9,10] for col in ['d', 'e', 'f']]
 
-    def loc_on_board(self, loc):
+    def loc_on_board(self, loc:str) -> bool:
         """
         Returns True if the location is on the board. Returns False 
         otherwise.
@@ -23,7 +23,7 @@ class JanggiBoard:
 
         return False
 
-    def tuple_on_board(self, tup):
+    def tuple_on_board(self, tup:tuple) -> bool:
         """
         Returns True if the tuple is on the board. Returns False otherwise.
         """
@@ -32,8 +32,7 @@ class JanggiBoard:
 
         return self.loc_on_board(loc)
 
-    # TODO: move these conversions to JanggiPosition class
-    def loc_to_tuple(self, loc):
+    def loc_to_tuple(self, loc:str):
         """
         Converts the string location "b5", for example, to the position tuple 
         (1,4) (column, row). Returns None if the location is invalid.
@@ -62,7 +61,7 @@ class JanggiBoard:
 
         return loc
 
-    def get_piece(self, loc):
+    def get_piece(self, loc:str):
         """
         Returns the piece at the given location (for 
         example "b5".) Returns None if there is no 
@@ -82,7 +81,7 @@ class JanggiBoard:
 
         self.set_piece(None, loc)
 
-    def set_piece(self, piece, loc):
+    def set_piece(self, piece, loc:str):
         """
         Moves (piece) to (loc) on the board. Does nothing if loc 
         is not on the board. Does not check legality of the move.
@@ -94,7 +93,7 @@ class JanggiBoard:
 
         self._board[loc] = piece
 
-    def get_player(self, loc):
+    def get_player(self, loc:str):
         """
         Returns the player who owns the piece at the given location.
         Returns None if there is no piece there.
@@ -109,7 +108,7 @@ class JanggiBoard:
 
         return piece.get_player()
 
-    def in_palace(self, loc):
+    def in_palace(self, loc:str) -> bool:
         """
         Returns True if the given location (for example "e3") 
         is in the palace. Returns False otherwise.
@@ -119,7 +118,7 @@ class JanggiBoard:
             return True
         return False
 
-    def print_piece(self, location):
+    def print_piece(self, location:str):
         """
         Prints a piece on the board at the given location. 
         To be used with print_board.
@@ -176,4 +175,3 @@ class JanggiBoard:
             for col in self._columns:
                 self.print_piece(col + row)
             print()
-
