@@ -120,12 +120,56 @@ class Chariot(Piece):
 
         location = {"R": {1: "a1", 2: "i1"}, "B": {1: "a10", 2: "i10"}}
 
-        paths = {
-            "normal": [[(i,j)] for i in range(-8,9) for j in range(-9,10)
-                    if i*j == 0 and (i != 0 or j != 0)]
-        }
+        # movement direction vectors
+        self._directions = [(1,0), (-1,0), (0,1), (0,-1)]
 
         super().__init__(player, number, "C", location, board)
+
+    def get_step(self, start:JanggiPosition, direction:tuple) -> JanggiPosition:
+        """
+        Generator function that finds the next position
+        on the board in the given direction. Starts at the 
+        start position. Returns the next position 
+        while the next position is on the board.
+        """
+
+        step = start.shift(direction)
+
+        while self.pos_on_board(step):
+            yield step
+            step = step.shift(direction)
+
+    def get_move(self, direction:tuple) -> str:
+        """
+        Generator function that finds the next valid move 
+        in the given direction. 
+        """
+
+        start = self._pos
+
+        for step in self.get_step(start, direction):
+            # if we reach our own piece, stop here
+            if self.get_pos_player(step) == self.get_player():
+                return
+
+            # if we reach the opponents piece, return the location
+            # then stop here
+            if self.get_pos_player(step) is not None:
+                yield step.get_loc()
+                return
+
+            yield step.get_loc()
+
+    def get_moves(self) -> list:
+        "Returns a list of valid moves for this Cannon."
+
+        valid_moves = []
+
+        for direction in self._directions:
+            for move in self.get_move(direction):
+                valid_moves.append(move)
+
+        return valid_moves
 
 class Cannon(Piece):
     "A class to represent the Cannon piece."
