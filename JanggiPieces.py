@@ -57,6 +57,23 @@ class Piece:
 
         self._pos = pos
 
+    def pos_on_board(self, pos:JanggiPosition) -> bool:
+        """
+        Returns True if the position pos is on the board. 
+        Returns False otherwise. 
+        """
+
+        return self._board.loc_on_board(pos.get_loc())
+
+    def get_pos_player(self, pos:JanggiPosition):
+        """
+        If there is a piece at the given position, returns
+        the player who owns that piece. If there is no piece 
+        at the position or the position is invalid, returns None.
+        """
+
+        return self._board.get_player(pos.get_loc())
+
 class Elephant(Piece):
     """
     A class to represent the Elephant piece.
@@ -123,8 +140,111 @@ class Cannon(Piece):
                 [[(i,j)] for i in range(-8,9) for j in range(-9,10)
                     if i*j == 0 and (i != 0 or j != 0)]
         }
+        # movement direction vectors
+        self._directions = [(1,0), (-1,0), (0,1), (0,-1)]
 
         super().__init__(player, number, "O", location, board)
+
+    def is_cannon(self, pos:JanggiPosition) -> bool:
+        """
+        Returns True if there is a Cannon at the given 
+        position. Returns False otherwise.
+        """
+        
+        piece = self._board.get_piece(pos.get_loc())
+
+        if piece is None:
+            return False
+
+        if piece.get_name()[1] == 'O':
+            return True
+        
+        return False
+
+    def get_step(self, start:JanggiPosition, direction:tuple) -> JanggiPosition:
+        """
+        Generator function that finds the next position
+        on the board in the given direction. Starts at the 
+        start position. Returns the next position 
+        while the next position is on the board.
+        """
+
+        step = start.shift(direction)
+
+        while self.pos_on_board(step):
+            yield step
+            step = step.shift(direction)
+
+    def get_jump_pos(self, direction:tuple):
+        """
+        Returns the position of the next piece in the given direction 
+        (starting at the Cannon's current position). This is the position
+        the Cannon will jump over.
+        Returns False if no piece is found.
+        """
+
+        for step in self.get_step(self._pos, direction):
+            # if there is a cannon here, stop
+            if self.is_cannon(step):
+                return False
+
+            # if we find a non-cannon piece, return the position
+            if self.get_pos_player(step) is not None:
+                return step
+        # no pieces found
+        return False
+
+    def get_move(self, direction:tuple) -> str:
+        """
+        Generator function that finds the next valid move 
+        in the given direction. 
+        """
+
+        start = self.get_jump_pos(direction)
+
+        # if there is no jump position, do nothing
+        if not start:
+            return
+
+        for step in self.get_step(start, direction):
+            # if we reach a cannon, stop here
+            if self.is_cannon(step):
+                return
+
+            # if we reach our own piece, stop here
+            if self.get_pos_player(step) == self.get_player():
+                return
+
+            # if we reach the opponents piece, return the location
+            # then stop here
+            if self.get_pos_player(step) is not None:
+                yield step.get_loc()
+                return
+
+            yield step.get_loc()
+
+    def get_moves(self) -> list:
+        "Returns a list of valid moves for this Cannon."
+
+        valid_moves = []
+
+        for direction in self._directions:
+            for move in self.get_move(direction):
+                valid_moves.append(move)
+
+        return valid_moves
+
+        # for direction in self._movement:
+        #     step = self._pos.shift(direction)
+        #     if not self.pos_on_board(step):
+        #         continue
+        #     if 
+        #     # keep going until a piece is found
+        #     while self.get_pos_player(step) is None:
+        #         if not self.pos_on_board(step.shift(direction)):
+        #             break
+        #         step = step.shift(direction)
+            
 
 class Horse(Piece):
     "A class to represent the Horse piece."
@@ -134,7 +254,7 @@ class Horse(Piece):
 
         location = {"R": {1: "c1", 2: "h1"}, "B": {1: "c10", 2: "h10"}}
 
-        self._paths = {
+        self._movement = {
             (0,1): [(1,1), (-1,1)], 
             (0,-1): [(1,-1), (-1,-1)], 
             (1,0): [(1,1), (1,-1)],
@@ -148,11 +268,11 @@ class Horse(Piece):
 
         valid_moves = []
 
-        for first_move in self._paths:
+        for first_move in self._movement:
             first_pos = self._pos.shift(first_move)
             first_player = self._board.get_player(first_pos.get_loc())
             if first_player is None:
-                for second_move in self._paths[first_move]:
+                for second_move in self._movement[first_move]:
                     second_pos = first_pos.shift(second_move)
                     second_loc = second_pos.get_loc()
                     second_player = self._board.get_player(second_loc)
