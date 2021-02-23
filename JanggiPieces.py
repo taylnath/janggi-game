@@ -160,6 +160,7 @@ class Chariot(Piece):
 
             yield step.get_loc()
 
+    # TODO: add palace moves
     def get_moves(self) -> list:
         "Returns a list of valid moves for this Cannon."
 
@@ -262,6 +263,7 @@ class Cannon(Piece):
 
             yield step.get_loc()
 
+    # TODO: add palace moves
     def get_moves(self) -> list:
         "Returns a list of valid moves for this Cannon."
 
@@ -297,14 +299,14 @@ class Horse(Piece):
 
         for first_move in self._movement:
             first_pos = self._pos.shift(first_move)
-            first_player = self._board.get_player(first_pos.get_loc())
-            if first_player is None:
+            if self.get_pos_player(first_pos) is None:
                 for second_move in self._movement[first_move]:
                     second_pos = first_pos.shift(second_move)
-                    second_loc = second_pos.get_loc()
-                    second_player = self._board.get_player(second_loc)
-                    if second_player != self.get_player() and second_loc is not None:
-                        valid_moves.append(second_loc)
+                    second_player = self.get_pos_player(second_pos)
+                    # check that the destination doesn't have one of our own team
+                    # also check the destination is on the board
+                    if second_player != self.get_player() and self.pos_on_board(second_pos):
+                        valid_moves.append(second_pos.get_loc())
 
         return valid_moves
 
