@@ -57,7 +57,6 @@ class Piece:
 
         self._pos = pos
 
-
 class Elephant(Piece):
     """
     A class to represent the Elephant piece.
@@ -71,7 +70,6 @@ class Elephant(Piece):
         paths = {}
 
         super().__init__(player, number, "E", location, board)
-
 
 class General(Piece):
     " A class to represent the General piece."
@@ -142,26 +140,6 @@ class Horse(Piece):
 
         super().__init__(player, number, "H", location, board)
 
-    # def get_move(self, start_loc, movement_tuple):
-    #     """
-    #     Simulates moving from 
-    #     start_loc by the offset movement_tuple. Returns a tuple
-    #     containing the end location and the owner of the piece at 
-    #     the destination (or None if there is no destination piece),
-    #     i.e. returns (loc, player).
-    #     """
-
-    #     start_tuple = self._board.loc_to_tuple(start_loc)
-    #     end_tuple = self.add_tuples(start_tuple, movement_tuple)
-    #     end_loc = self._board.tuple_to_loc(end_tuple)
-    #     end_piece = self._board.get_piece(end_loc)
-    #     if end_piece is None:
-    #         end_player = None
-    #     else:
-    #         end_player = end_piece.get_player()
-
-    #     return (end_loc, end_player)
-
     def get_moves(self) -> list:
         "Returns a list of valid moves for this Horse"
 
@@ -179,35 +157,6 @@ class Horse(Piece):
                         valid_moves.append(second_loc)
 
         return valid_moves
-
-
-    # def get_moves(self):
-    #     "Returns a list of valid moves for this Horse."
-
-    #     valid_moves = []
-
-    #     for initial_move in self._paths:
-    #         initial_loc, initial_player = self.get_move(self._loc, initial_move)
-    #         if initial_player is None:
-    #             for second_move in self._paths[initial_move]:
-    #                 second_loc, second_player = self.get_move(initial_loc, second_move)
-    #                 if second_player != self.get_player() and second_loc is not None:
-    #                     valid_moves.append(second_loc)
-
-    #     return valid_moves
-
-        # for initial_move in self._paths:
-        #     initial_tuple = self.add_tuples(loc_tuple, initial_move)
-        #     initial_loc = self._board.tuple_to_loc(initial_tuple)
-        #     initial_piece = self._board.get_piece(initial_loc)
-        #     if initial_piece is None:
-        #         for second_move in self._paths[initial_move]:
-        #             second_tuple = self.add_tuples(initial_tuple, second_move)
-        #             second_loc = self._board.tuple_to_loc(second_tuple)
-        #             second_piece = self._board.get_piece(second_loc)
-        #             if second_piece is None or second_piece.get_player() != self.get_player():
-        #                 valid_moves.append(second_loc)
-
 
 class Soldier(Piece):
     "A class to represent the Soldier piece."
