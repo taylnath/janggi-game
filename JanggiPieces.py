@@ -128,13 +128,14 @@ class Piece:
 
         return self.is_not_us(pos) and (not self.is_open(pos))
 
-    def is_piece(self, pos:JanggiPosition):
+    def is_piece(self, pos):
         """
-        Returns True if the position contains a piece owned by 
+        Takes either a JanggiPosition object or a location string (i.e. "b5")
+        as input. Returns True if the position contains a piece owned by 
         either player. Returns False otherwise. 
         """
 
-        return self.get_pos_player(pos) is not None
+        return self.is_us(pos) or self.is_opponent(pos)
 
     def ok_to_move_here(self, pos):
         """
@@ -289,6 +290,25 @@ class Chariot(Piece):
         # movement direction vectors
         self._directions = [(1,0), (-1,0), (0,1), (0,-1)]
 
+        # palace movement dictionary
+        # format: 
+        # start: (jump, dest)
+        self._palace_corner_moves = {
+            "d1": ("e2", "f3"),
+            "f1": ("e2", "d3"),
+            "d3": ("e2", "f1"),
+            "f3": ("e2", "d1"),
+            "d10": ("e9", "f8"),
+            "f10": ("e9", "d8"),
+            "d8": ("e9", "f10"),
+            "f8": ("e9", "d10")
+        }
+
+        self._palace_center_moves = {
+            "e2": ["d3", "f3", "d1", "f1"],
+            "e9": ["d8", "f8", "d10", "f10"]
+        }
+
         super().__init__(player, number, "C", location, board)
 
     def get_step(self, start:JanggiPosition, direction:tuple) -> JanggiPosition:
@@ -326,7 +346,6 @@ class Chariot(Piece):
 
             yield step.get_loc()
 
-    # TODO: add palace moves
     def get_moves(self) -> list:
         "Returns a list of valid moves for this Cannon."
 
@@ -335,6 +354,21 @@ class Chariot(Piece):
         for direction in self._directions:
             for move in self.get_move(direction):
                 valid_moves.append(move)
+
+        # add diagonal moves if appropriate
+        if self.get_loc() in self._palace_corner_moves:
+            move1, move2 = self._palace_corner_moves[self.get_loc()]
+            if self.ok_to_move_here(move1):
+                valid_moves.append(move1)
+            if self.is_open(move1) and self.ok_to_move_here(move2):
+                valid_moves.append(move2)
+        
+        # add moves from center of palace if appropriate
+        if self.get_loc() in self._palace_center_moves:
+            moves = self._palace_center_moves[self.get_loc()]
+            for move in moves:
+                if self.ok_to_move_here(move):
+                    valid_moves.append(move)
 
         return valid_moves
 
@@ -348,6 +382,20 @@ class Cannon(Piece):
 
         # movement direction vectors
         self._directions = [(1,0), (-1,0), (0,1), (0,-1)]
+
+        # palace movement dictionary
+        # format: 
+        # start: (jump, dest)
+        self._palace_moves = {
+            "d1": ("e2", "f3"),
+            "f1": ("e2", "d3"),
+            "d3": ("e2", "f1"),
+            "f3": ("e2", "d1"),
+            "d10": ("e9", "f8"),
+            "f10": ("e9", "d8"),
+            "d8": ("e9", "f10"),
+            "f8": ("e9", "d10")
+        }
 
         super().__init__(player, number, "O", location, board)
 
@@ -429,7 +477,6 @@ class Cannon(Piece):
 
             yield step.get_loc()
 
-    # TODO: add palace moves
     def get_moves(self) -> list:
         "Returns a list of valid moves for this Cannon."
 
@@ -438,6 +485,12 @@ class Cannon(Piece):
         for direction in self._directions:
             for move in self.get_move(direction):
                 valid_moves.append(move)
+
+        # add diagonal moves if appropriate
+        if self.get_loc() in self._palace_moves:
+            jump, dest = self._palace_moves[self.get_loc()]
+            if self.is_piece(jump) and self.ok_to_move_here(dest):
+                valid_moves.append(dest)
 
         return valid_moves
 
