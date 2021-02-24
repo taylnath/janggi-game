@@ -142,14 +142,17 @@ class JanggiGame:
         for piece in self._pieces[opponent]:
             # print("check win: checking moves for " + piece.get_name()) # debug
             for move in piece.get_moves():
+                old_loc = piece.get_loc() # debug
                 self._board.save_board()
                 self._mechanic.move_piece(piece, move)
                 if not self.is_in_check(opponent):
-                    # print("check win: found move " + move) # debug
+                    print("check win: found move " + old_loc + " to " + move) # debug
                     self._board.recover_board()
                     # self._board.print_board() # debug
                     return False
                 self._board.recover_board()
+
+        return True
 
     def declare_winner(self, player:str):
         """
