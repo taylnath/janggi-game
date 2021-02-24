@@ -106,6 +106,34 @@ class JanggiGame:
             return False
         return True
 
+    def check_if_player_won(self, player:str) -> bool:
+        """
+        Checks if the opponent to the given player is in check and 
+        has no moves to get out of check.
+        """
+        opponent = self.get_opponent(player)
+
+        if not self.is_in_check(opponent):
+            return False
+
+        for piece in self._pieces[opponent]:
+            for move in piece.get_moves():
+                self._board.save_board()
+                self._mechanic.move_piece(piece, move)
+                if not self.is_in_check(opponent):
+                    return False
+                self._board.recover_board()
+
+    def declare_winner(self, player:str):
+        """
+        Declares the (player) to be the winner.
+        """
+
+        if player == "R":
+            self._state = "RED_WON"
+        elif player == "B":
+            self._state = "BLUE_WON"
+
     def make_move(self, move_from, move_to):
         """
         Attempts to move a piece located at move_from location to 
@@ -150,6 +178,10 @@ class JanggiGame:
         opponent = self.get_opponent(self._player)
         if to_piece in self._pieces[opponent]:
             self._pieces[opponent].remove(to_piece)
+
+        # check if the current player won
+        if self.check_if_player_won(self._player):
+            self.declare_winner(self._player)
 
         self.update_turn()
         
