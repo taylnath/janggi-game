@@ -15,14 +15,18 @@ class JanggiGame:
         self._player = "B"
         self._mechanic = JanggiMechanic(self._board)
         self._state = "UNFINISHED"
+        self._pieces = {"R": [], "B": []}
 
         for player in ["R", "B"]:
-            General(player, self._board)
+            general = General(player, self._board)
+            self._pieces[player].append(general)
             for number in [1, 2]:
                 for piece_type in [Elephant, Advisor, Chariot, Cannon, Horse]:
-                    piece_type(player, number, self._board)
+                    piece = piece_type(player, number, self._board)
+                    self._pieces[player].append(piece)
             for number in [1,2,3,4,5]:
-                Soldier(player, number, self._board)
+                soldier = Soldier(player, number, self._board)
+                self._pieces[player].append(soldier)
 
     def get_game_state(self) -> str:
         """
@@ -31,6 +35,17 @@ class JanggiGame:
         """
 
         return self._state
+
+    def get_general(self, player:str) -> General:
+        """
+        Returns the general belonging to the given player.
+        """
+
+        return self._pieces[player][0]
+
+        # for piece in self._board.get_palace_pieces():
+        #     if type(piece) == General and piece.get_player() == player:
+        #         return piece
 
     def is_in_check(self, player:str) -> bool:
         """
@@ -41,25 +56,55 @@ class JanggiGame:
 
         player = player[0].upper()
 
+        general_loc = self.get_general(player).get_loc()
+
+        opponent = self.get_opponent(player)
+
+        for piece in self._pieces[opponent]:
+            if general_loc in piece.get_moves():
+                return True
+
         return False
+
+    def get_opponent(self, player:str) -> str:
+        """
+        Returns the player opposing the given player.
+        I.e. returns "R" if the given player is "B".
+        """
+
+        if player == 'B':
+            return 'R'
+        else:
+            return 'B'
 
     def update_turn(self):
         """
         Changes the current turn from 'B' to 'R' or 
-        from 'R' to 'B'.
+        from 'R' to 'B'. (should this be called brb?)
         """
 
-        if self._player == 'B':
-            self._player = 'R'
-        else:
-            self._player = 'B'
+        self._player = self.get_opponent(self._player)
 
-    def get_board(self):
+    def get_board(self) -> JanggiBoard:
         """
         Returns the game board.
         """
 
         return self._board
+
+    def try_move(self, piece, move_to):
+        """
+        Saves the board, then makes the given move (if valid).
+        If the move puts the current player in check, try_move 
+        restores the board and returns False.
+        """
+
+        self._board.save_board()
+        self._mechanic.move_piece(piece, move_to)
+        if self.is_in_check(self._player):
+            self._board.recover_board()
+            return False
+        return True
 
     def make_move(self, move_from, move_to):
         """
@@ -67,10 +112,13 @@ class JanggiGame:
         the move_to location.
         """
 
+        # check the game state
+        if self._state != 'UNFINISHED':
+            return False
+
         # get the pieces at the move_from and move_to locations
         piece = self._board.get_piece(move_from)
         to_piece = self._board.get_piece(move_to)
-
 
         # return False if there is no piece at move_from
         if piece is None:
@@ -80,15 +128,30 @@ class JanggiGame:
         if piece.get_player() != self._player:
             return False
 
-        # if the destination piece is owned by the current player, return False
-        if to_piece is not None and to_piece.get_player() == self._player:
-            return False
+        # # if the destination piece is owned by the current player, return False
+        # if to_piece is not None and to_piece.get_player() == self._player:
+        #     return False
+
+        # if the current player wants to skip a turn, 
+        # update the turn and do nothing else
+        if move_to == move_from:
+            self.update_turn()
+            return True
 
         # if the piece is cannot move to the given location, return False
         if move_to not in piece.get_moves():
             return False
 
-        self._mechanic.move_piece(piece, move_to)
+        # make the move, then undo if it puts the current player in check
+        if not self.try_move(piece, move_to):
+            return False
+
+        # if a piece was captured, remove it from the opponent's piece list
+        opponent = self.get_opponent(self._player)
+        if to_piece in self._pieces[opponent]:
+            self._pieces[opponent].remove(to_piece)
+
+        self.update_turn()
         
         return True
 

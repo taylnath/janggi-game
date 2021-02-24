@@ -11,6 +11,41 @@ class JanggiBoard:
         self._rev_rows = {val : key for key, val in self._rows.items()}
         self._board = {column + row: None for column in self._columns for row in self._rows}
         self._palace = [col + str(row) for row in [1,2,3,8,9,10] for col in ['d', 'e', 'f']]
+        self._saved_board = None
+
+    def get_pieces(self):
+        """
+        Returns a list containing all pieces on the board.
+        """
+
+        return [piece for piece in self._board if piece is not None]
+
+    def get_palace_pieces(self):
+        """
+        Returns a list containing all pieces in both palaces.
+        """
+
+        palace_spots = [self._board[i] for i in self._palace]
+        palace_pieces = [piece for piece in palace_spots if piece is not None]
+
+        return palace_pieces
+
+    def save_board(self):
+        """
+        Saves the current state of the board. 
+        Can be recovered with the recover_board method.
+        Only one state is saved.
+        """
+        
+        self._saved_board = dict(self._board)
+
+    def recover_board(self):
+        """
+        Recovers the previous state of the board, as 
+        stored in _saved_board.
+        """
+
+        self._board = dict(self._saved_board)
 
     def loc_on_board(self, loc:str) -> bool:
         """
