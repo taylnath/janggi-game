@@ -13,8 +13,28 @@ rev_rows = {val:key for key, val in rows.items()}
 board = {col + row: tk.StringVar() for col in rev_cols for row in rev_rows}
 buttons = {col + row: None for col in rev_cols for row in rev_rows}
 
+move_from = True
+from_loc = ""
+
+turn = tk.StringVar()
+state = tk.StringVar()
+red_check = tk.StringVar()
+blue_check = tk.StringVar()
+
 def update_board():
+    clear_colors()
     b = g.get_board()
+    b.print_board()
+
+    global turn, state, red_check, blue_check
+
+    colors = {"R": "salmon", "B": "sky blue"}
+
+    # update label variables
+    turn.set(g.get_player())
+    state.set(g.get_game_state())
+    red_check.set("Red in check? " + g.get_in_check("R"))
+    blue_check.set("Blue in check? " + g.get_in_check("B"))
 
     for name in board:
         piece = b.get_piece(name)
@@ -22,8 +42,14 @@ def update_board():
         if piece is None:
             board[name].set("      ")
         else:
-            board[name].set(piece.get_name())
-
+            if piece.get_name()[1] == "G":
+                board[name].set(" " + piece.get_name() + " ")
+            else:
+                board[name].set(piece.get_name())
+            player = piece.get_player()
+            color = colors[player]
+            buttons[name].configure(bg=color)
+            buttons[name].configure(activebackground=color)
 
 def clear_colors():
     global buttons
@@ -32,11 +58,8 @@ def clear_colors():
         buttons[name].configure(bg = "#F0F0F0")
         buttons[name].configure(activebackground = "#F0F0F0")
 
-move_from = True
-from_loc = ""
-
 def select_move(selection):
-    "Print out the button label."
+    "Color the possible moves, and make a move, alternating."
     global move_from
     global from_loc
     if move_from:
@@ -45,13 +68,12 @@ def select_move(selection):
         piece = g.get_board().get_piece(from_loc)
         if piece is not None:
             for move in piece.get_moves():
-                buttons[move].configure(bg="red")
-                buttons[move].configure(activebackground="red")
+                buttons[move].configure(bg="light green")
+                buttons[move].configure(activebackground="light green")
     else:
         move_from = True
         g.make_move(from_loc, selection)
         update_board()
-        clear_colors()
 
 # create the window
 
@@ -88,12 +110,17 @@ for ro in rows:
         buttons[name] = btn
         btn.pack()
 
-sidebar = tk.Frame(master=window)
-sidebar.grid(row=1, column=11, columnspan=2, sticky=tk.E + tk.W)
-turn_label = tk.Label(master=sidebar, text="turn", width=20)
-turn_label.pack()
+# sidebar = tk.Frame(master=window)
+# sidebar.grid(row=1, column=11, columnspan=2, sticky=tk.E + tk.W)
+turn_label = tk.Label(master=window, textvariable=turn, width=20)
+turn_label.grid(row=1, column=11)
+state_label = tk.Label(master=window, textvariable=state, width=20)
+state_label.grid(row=2, column=11)
+red_check_label = tk.Label(master=window, textvariable=red_check, width=20)
+red_check_label.grid(row=3, column=11)
+blue_check_label = tk.Label(master=window, textvariable=blue_check, width=20)
+blue_check_label.grid(row=4, column=11)
 
 if __name__ == "__main__":
     update_board()
-    clear_colors()
     window.mainloop()

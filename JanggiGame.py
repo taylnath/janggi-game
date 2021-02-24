@@ -16,6 +16,7 @@ class JanggiGame:
         self._mechanic = JanggiMechanic(self._board)
         self._state = "UNFINISHED"
         self._pieces = {"R": [], "B": []}
+        self._in_check = {"R": "", "B": ""}
 
         for player in ["R", "B"]:
             general = General(player, self._board)
@@ -27,6 +28,16 @@ class JanggiGame:
             for number in [1,2,3,4,5]:
                 soldier = Soldier(player, number, self._board)
                 self._pieces[player].append(soldier)
+
+    def get_player(self):
+        "Returns the current player."
+
+        return self._player
+
+    def get_in_check(self, player):
+        "Returns 'Yes' if the player is in check."
+
+        return self._in_check[player]
 
     def get_game_state(self) -> str:
         """
@@ -62,8 +73,10 @@ class JanggiGame:
 
         for piece in self._pieces[opponent]:
             if general_loc in piece.get_moves():
+                self._in_check[player] = "Yes"
                 return True
 
+        self._in_check[player] = ""
         return False
 
     def get_opponent(self, player:str) -> str:
