@@ -58,7 +58,8 @@ class JanggiGame:
         #     if type(piece) == General and piece.get_player() == player:
         #         return piece
 
-    def is_in_check(self, player:str) -> bool:
+    # the exclude excludes the piece that was optionally captured
+    def is_in_check(self, player:str, exclude=None) -> bool:
         """
         Returns True if the player is in check. 
         Returns False otherwise. Only looks at the 
@@ -67,16 +68,21 @@ class JanggiGame:
 
         player = player[0].upper()
 
+        # print("is_in_check: checking whether " + player + " is in check") # debug
+
         general_loc = self.get_general(player).get_loc()
+
+        # print("is_in_check: this player's general is located at " + general_loc) # debug
 
         opponent = self.get_opponent(player)
 
-        for piece in self._pieces[opponent]:
+        opponent_pieces = [piece for piece in self._pieces[opponent] if piece is not exclude]
+
+        # for piece in self._pieces[opponent]:
+        for piece in opponent_pieces:
             if general_loc in piece.get_moves():
-                self._in_check[player] = "Yes"
                 return True
 
-        self._in_check[player] = ""
         return False
 
     def get_opponent(self, player:str) -> str:
@@ -113,8 +119,9 @@ class JanggiGame:
         """
 
         self._board.save_board()
-        self._mechanic.move_piece(piece, move_to)
-        if self.is_in_check(self._player):
+        captured_piece = self._mechanic.move_piece(piece, move_to)
+        if self.is_in_check(self._player, exclude=captured_piece):
+            # print("game: recovering board") # debug
             self._board.recover_board()
             return False
         return True
@@ -127,13 +134,20 @@ class JanggiGame:
         opponent = self.get_opponent(player)
 
         if not self.is_in_check(opponent):
+            # print("check win: opponent " + opponent + " is not in check") # debug
             return False
 
+        # print("check win: " + opponent + " is in check") # debug
+        # print("check win: checking " + opponent + " piece moves to see if " + player + " won...") # debug
         for piece in self._pieces[opponent]:
+            # print("check win: checking moves for " + piece.get_name()) # debug
             for move in piece.get_moves():
                 self._board.save_board()
                 self._mechanic.move_piece(piece, move)
                 if not self.is_in_check(opponent):
+                    # print("check win: found move " + move) # debug
+                    self._board.recover_board()
+                    # self._board.print_board() # debug
                     return False
                 self._board.recover_board()
 
@@ -176,10 +190,12 @@ class JanggiGame:
         # if the current player wants to skip a turn, 
         # update the turn and do nothing else
         if move_to == move_from:
+            if self.is_in_check(self._player):
+                return False
             self.update_turn()
             return True
 
-        # if the piece is cannot move to the given location, return False
+        # if the piece cannot move to the given location, return False
         if move_to not in piece.get_moves():
             return False
 
@@ -196,29 +212,42 @@ class JanggiGame:
         if self.check_if_player_won(self._player):
             self.declare_winner(self._player)
 
+        # update whether each player is in check or not
+        for player in [self._player, opponent]:
+            if self.is_in_check(player):
+                self._in_check[player] = "Yes"
+            else:
+                self._in_check[player] = "No"
+
+        # print("make_move: is " + opponent + " in check? " + str(self.is_in_check(opponent))) # debug
+        self.is_in_check(self._player)
+
         self.update_turn()
         
         return True
 
-def mm(game, from_loc, to_loc):
-    input()
-    print(game.make_move(from_loc, to_loc))
-    game.get_board().print_board()
-
 if __name__ == "__main__":
+    def mm(game, from_loc, to_loc):
+        print(game.make_move(from_loc, to_loc))
+        game.get_board().print_board()
+
     g = JanggiGame()
     g.get_board().print_board()
 
-    # move horse
-    mm(g, "c10", "d8")
-    mm(g, "d8", "e7")
-    mm(g, "d8", "c6")
-
-    # move soldier 
-    mm(g, "c7", "d6")
-    mm(g, "c7", "c6")
-    mm(g, "c6", "c5")
-    mm(g, "c5", "c4")
-    mm(g, "c4", "c3")
-    mm(g, "c3", "d3")
-    mm(g, "d3", "e2")
+    mm(g, "b10", "d7")
+    mm(g, "d1", "e1")
+    mm(g, "d7", "f4")
+    mm(g, "h1", "g3")
+    mm(g, "f4", "f4")
+    mm(g, "e2", "d2")
+    mm(g, "f4", "f4")
+    mm(g, "g3", "e2")
+    mm(g, "f4", "f4")
+    mm(g, "d2", "d1")
+    mm(g, "f4", "f4")
+    mm(g, "e2", "f4")
+    # mm(g, "e7", "e6")
+    # mm(g, "e4", "e5")
+    # mm(g, "e6", "e5")
+    # mm(g, "e2", "e3")
+    # mm(g, "e5", "e4")

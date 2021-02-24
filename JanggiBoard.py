@@ -42,10 +42,15 @@ class JanggiBoard:
     def recover_board(self):
         """
         Recovers the previous state of the board, as 
-        stored in _saved_board.
+        stored in _saved_board. Updates the position of 
+        each piece accordingly.
         """
 
         self._board = dict(self._saved_board)
+        for loc in self._board:
+            piece = self._board[loc]
+            if piece is not None:
+                piece.set_pos(loc)
 
     def loc_on_board(self, loc:str) -> bool:
         """

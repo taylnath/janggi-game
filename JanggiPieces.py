@@ -50,6 +50,7 @@ class Piece:
 
         return self._pos.get_loc()
     
+    # TODO: change this to set_loc
     def set_pos(self, loc:str):
         "Sets the current position of the piece."
 
