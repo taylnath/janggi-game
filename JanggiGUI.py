@@ -62,8 +62,8 @@ for col in cols:
         lbl = tk.Label(master=frame, text=" " + cols[col] + " ")
         lbl.pack()
 
-for col in cols:
-    for ro in rows:
+for ro in rows:
+    for col in cols:
         # row labels
         frame = tk.Frame(master = window)
         frame.grid(row=ro + 1, column=0)
@@ -87,6 +87,11 @@ for col in cols:
             btn = tk.Button(master=frame, textvariable = board[name], command=lambda txt=name: select_move(txt))
         buttons[name] = btn
         btn.pack()
+
+sidebar = tk.Frame(master=window)
+sidebar.grid(row=1, column=11, columnspan=2, sticky=tk.E + tk.W)
+turn_label = tk.Label(master=sidebar, text="turn", width=20)
+turn_label.pack()
 
 if __name__ == "__main__":
     update_board()

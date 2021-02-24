@@ -14,6 +14,7 @@ class JanggiGame:
         self._board = JanggiBoard()
         self._player = "B"
         self._mechanic = JanggiMechanic(self._board)
+        self._state = "UNFINISHED"
 
         for player in ["R", "B"]:
             General(player, self._board)
@@ -23,6 +24,35 @@ class JanggiGame:
             for number in [1,2,3,4,5]:
                 Soldier(player, number, self._board)
 
+    def get_game_state(self) -> str:
+        """
+        Returns 'UNFINISHED', 'RED_WON', or 'BLUE_WON', 
+        depending on the state of the game.
+        """
+
+        return self._state
+
+    def is_in_check(self, player:str) -> bool:
+        """
+        Returns True if the player is in check. 
+        Returns False otherwise. Only looks at the 
+        first letter of the given string (player).
+        """
+
+        player = player[0].upper()
+
+        return False
+
+    def update_turn(self):
+        """
+        Changes the current turn from 'B' to 'R' or 
+        from 'R' to 'B'.
+        """
+
+        if self._player == 'B':
+            self._player = 'R'
+        else:
+            self._player = 'B'
 
     def get_board(self):
         """
