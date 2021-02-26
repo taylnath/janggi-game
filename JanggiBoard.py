@@ -1,9 +1,21 @@
 # the Janggi Board
 
 class JanggiBoard:
-    "A class to represent the Janggi game board."
+    """
+    A class to represent the Janggi game board. The board is 
+    designed to store information about which pieces are where 
+    (via a dictionary). The board also contains methods which 
+    report information about which pieces are where on the board.
+    Each JanggiGame, Piece, and JanggiMechanic object has a 
+    reference to a JanggiBoard object.
+    """
 
     def __init__(self):
+        """
+        Initialize the board as a blank dictionary. Also initialize 
+        dictionaries to convert from location notation (i.e. "b5") 
+        to tuple notation, and a list of locations in the palace.
+        """
 
         self._columns = {'a': 0, 'b': 1, 'c': 2, 'd': 3, 'e': 4, 'f': 5, 'g': 6, 'h': 7, 'i': 8}
         self._rev_columns = {val : key for key, val in self._columns.items()}
@@ -77,6 +89,7 @@ class JanggiBoard:
         Converts the string location "b5", for example, to the position tuple 
         (1,4) (column, row). Returns None if the location is invalid.
         """
+
         if loc is None or len(loc) < 2:
             return None
         if loc[0] not in self._columns or loc[1:] not in self._rows:
@@ -89,6 +102,7 @@ class JanggiBoard:
         Converts the tuple (1,4), for example, to the position 
         string "b5". If the tuple is not on the board, returns None.
         """
+
         if tup is None or len(tup) < 2:
             return None
 
@@ -138,6 +152,7 @@ class JanggiBoard:
         Returns the player who owns the piece at the given location.
         Returns None if there is no piece there.
         """
+
         if loc is None:
             return None
 

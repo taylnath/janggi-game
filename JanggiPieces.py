@@ -6,13 +6,24 @@ from JanggiMechanic import JanggiMechanic
 
 class Piece:
     """
-    A class to represent a generic Janggi piece. 
+    A class to represent a generic Janggi Piece. The generic Janggi 
+    Piece has attributes for its current position (a JanggiPosition object), 
+    name, and the JanggiBoard it belongs to. The JanggiBoard _board dictionary
+    contains the locations of each Piece as well.
+
+    Methods for the generic Janggi Piece are for reporting information about 
+    the Piece (i.e. name, owner of the piece), or for helping the Pieces themselves
+    calculate potential moves.
     """
 
     def __init__(self, player:str, number:int, character:str, location:dict, board:JanggiBoard):
         """
         Place the piece on the board, and keep track of this piece's location. 
+
+        Each child class of Piece will give the superclass a location dictionary 
+        which contains information about where to initially place the piece.
         """
+
         # construct the piece's name
         if character == "G":
             self._name = player + character
@@ -46,11 +57,10 @@ class Piece:
         return self._pos
 
     def get_loc(self) -> str:
-        "Returns the piece's current location."
+        "Returns the piece's current location string."
 
         return self._pos.get_loc()
     
-    # TODO: change this to set_loc
     def set_pos(self, loc:str):
         "Sets the current position of the piece."
 
@@ -75,6 +85,19 @@ class Piece:
 
         return self._board.get_player(pos.get_loc())
 
+    def loc_from_pos(self, pos):
+        """
+        Takes either a JanggiPosition object or a location string (i.e. "b5")
+        as input. If given a JanggiPosition object, loc_from_pos converts it 
+        to a location string, and returns that string. If given a location 
+        string, loc_from_pos returns that string. Does not check if the 
+        location or position is on the board.
+        """
+
+        if type(pos) == JanggiPosition:
+            return pos.get_loc()
+        return pos
+
     def is_open(self, pos):
         """
         Takes either a JanggiPosition object or a location string (i.e. "b5")
@@ -82,10 +105,8 @@ class Piece:
         Returns False otherwise. 
         """
 
-        if type(pos) == JanggiPosition:
-            loc = pos.get_loc()
-        else:
-            loc = pos
+        # convert the location/position to a location string
+        loc = self.loc_from_pos(pos)
 
         if not self._board.loc_on_board(loc):
             return False
@@ -99,10 +120,8 @@ class Piece:
         the current player. Returns False otherwise. 
         """
 
-        if type(pos) == JanggiPosition:
-            loc = pos.get_loc()
-        else:
-            loc = pos
+        # convert the location/position to a location string
+        loc = self.loc_from_pos(pos)
 
         return self._board.get_player(loc) == self.get_player()
 
@@ -113,10 +132,8 @@ class Piece:
         the current player. Returns False otherwise. 
         """
 
-        if type(pos) == JanggiPosition:
-            loc = pos.get_loc()
-        else:
-            loc = pos
+        # convert the location/position to a location string
+        loc = self.loc_from_pos(pos)
 
         return self._board.get_player(loc) != self.get_player()
 
@@ -240,7 +257,7 @@ class Advisor(Piece):
     "A class to represent the Advisor piece."
 
     def __init__(self, player, number, board):
-        "Initialize the advisor and place on board."
+        "Initialize the advisor."
 
         location = {"R": {1: "d1", 2: "f1"}, "B": {1: "d10", 2: "f10"}}
 

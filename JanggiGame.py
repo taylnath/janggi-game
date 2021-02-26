@@ -9,7 +9,10 @@ class JanggiGame:
     "A class to represent the Janggi game."
 
     def __init__(self):
-        "Initialize the game with a populated board."
+        """
+        Initialize the game with a populated board, starting 
+        player "B"lue, and starting _state "UNFINISHED".
+        """
 
         self._board = JanggiBoard()
         self._player = "B"
@@ -18,6 +21,7 @@ class JanggiGame:
         self._pieces = {"R": [], "B": []}
         self._in_check = {"R": "", "B": ""}
 
+        # place pieces on the board
         for player in ["R", "B"]:
             general = General(player, self._board)
             self._pieces[player].append(general)
@@ -29,13 +33,13 @@ class JanggiGame:
                 soldier = Soldier(player, number, self._board)
                 self._pieces[player].append(soldier)
 
-    def get_player(self):
+    def get_player(self) -> str:
         "Returns the current player."
 
         return self._player
 
-    def get_in_check(self, player):
-        "Returns 'Yes' if the player is in check."
+    def get_in_check(self, player:str) -> str:
+        "Returns the string 'Yes' if the player is in check."
 
         return self._in_check[player]
 
@@ -63,7 +67,13 @@ class JanggiGame:
         """
         Returns True if the player is in check. 
         Returns False otherwise. Only looks at the 
-        first letter of the given string (player).
+        first letter of the given string (player) to identify the player 
+        (i.e. "B", "b", and "Blue" are all interpreted as the blue player.)
+
+        The optional exclude parameter is for a piece that was captured when 
+        trying out a move. If this parameter is passed, the given piece will 
+        be ignored. The try_move method does not remove the captured 
+        piece, in case the move will put the player's general in check.
         """
 
         player = player[0].upper()
@@ -131,6 +141,7 @@ class JanggiGame:
         Checks if the opponent to the given player is in check and 
         has no moves to get out of check.
         """
+
         opponent = self.get_opponent(player)
 
         if not self.is_in_check(opponent):
@@ -222,8 +233,8 @@ class JanggiGame:
             else:
                 self._in_check[player] = "No"
 
-        # print("make_move: is " + opponent + " in check? " + str(self.is_in_check(opponent))) # debug
-        self.is_in_check(self._player)
+        # # print("make_move: is " + opponent + " in check? " + str(self.is_in_check(opponent))) # debug
+        # self.is_in_check(self._player) # debug
 
         self.update_turn()
         

@@ -1,9 +1,14 @@
 from JanggiBoard import JanggiBoard
 
 class JanggiMechanic:
-    "A class to update the Janggi game board."
+    """
+    A class to update the Janggi game board. 
+    Used by the JanggiGame class to move pieces on the board,
+    and to initially place pieces on the board.
+    """
 
     def __init__(self, board:JanggiBoard):
+        "Initialize the mechanic with a JanggiBoard object."
 
         self._board = board
 
@@ -14,6 +19,7 @@ class JanggiMechanic:
         Returns False and changes nothing if there is already a piece at the position, 
         otherwise returns True and places the piece.
         """
+
         loc = piece.get_loc()
 
         # the second if also checks this condition
