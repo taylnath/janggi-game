@@ -96,14 +96,32 @@
 # 4. Modifying the board state after each move.
 ########################################################################
 
-#    
-#    
-#    
-#    
-#    
-#    
-#    
-#    
+#    Here is how the board is changed on each move:
+#
+#    The JanggiMechanic class' move_piece method does the following
+#       - saves the captured piece by checking the move_to location in the 
+#       board dictionary.
+#       - clears the old location by setting the move_from location to None
+#       in the board dictionary.
+#       - moves the piece by setting the move_to location in the board 
+#       dictionary to equal the piece being moved.
+#       - updates the piece's position. 
+#
+#    Here is how the game state is changed on each move:
+#
+#    After each move, the check_if_player_won method gets run. If it returns True,
+#    the declare_winner sets the board state to the appropriate string. The 
+#    check_if_player_won method does the following:
+#       - If the opposing player is not in check, it returns False.
+#       - Otherwise, for each of the opposing player's pieces, it does the following:
+#           - Gets the list of valid moves for that piece.
+#           - For each of those valid moves, it performs that move, then 
+#           checks if the opponent is still in check. If so, it tries the next move.
+#           - If a move is found which gets the opposing player out of check, 
+#           the current player has not won, so it returns False.
+#           - If each potential move leaves the general in check, the current player 
+#           has won, so it returns True.
+
 
 ########################################################################
 # 5. Determining how to track which player's turn it is to play right now.
