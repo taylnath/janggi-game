@@ -5,8 +5,8 @@
 ########################################################################
 ########################################################################
 # Contents: 
-#   (1). DETAILED TEXT DESCRIPTIONS OF HOW TO HANDLE THE SCENARIOS
-#   (2). Docstrings and methods for classes.
+#   (1). DETAILED TEXT DESCRIPTIONS OF HOW TO HANDLE THE SCENARIOS (line 8)
+#   (2). Docstrings and methods for classes. (line 160)
 ########################################################################
 ########################################################################
 
@@ -122,18 +122,39 @@
 #           - If each potential move leaves the general in check, the current player 
 #           has won, so it returns True.
 
-
 ########################################################################
 # 5. Determining how to track which player's turn it is to play right now.
 ########################################################################
+
+#    The JanggiGame class has a _player attribute that gets initialized 
+#    as "B" (for blue). The turn gets updated in the make_move method. 
+#    Then the update_turn method sets the player to the opposing player 
+#    (initially the opposing player is "R" for red).
 
 ########################################################################
 # 6. Determining how to detect the checkmate scenario.
 ########################################################################
 
+#    The check_if_player_won method does the following:
+#       - If the opposing player is not in check, it returns False.
+#       - Otherwise, for each of the opposing player's pieces, it does the following:
+#           - Gets the list of valid moves for that piece.
+#           - For each of those valid moves, it performs that move, then 
+#           checks if the opponent is still in check. If so, it tries the next move.
+#           - If a move is found which gets the opposing player out of check, 
+#           the current player has not won, so it returns False.
+#           - If each potential move leaves the general in check, the current player 
+#           has won, so it returns True.
+
 ########################################################################
 # 7. Determining which player has won and also figuring out when to check that.
 ########################################################################
+
+#    The check_if_player_won method gets run after every turn. It checks 
+#    whether the player who just made a move has put the other player in 
+#    check in such a way that the other player cannot get out of check.
+#    If that has happened, check_if_player_won declares the current player
+#    (who just moved) to be the winner. 
 
 
 ########################################################################
