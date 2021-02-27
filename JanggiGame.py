@@ -78,11 +78,7 @@ class JanggiGame:
 
         player = player[0].upper()
 
-        # print("is_in_check: checking whether " + player + " is in check") # debug
-
         general_loc = self.get_general(player).get_loc()
-
-        # print("is_in_check: this player's general is located at " + general_loc) # debug
 
         opponent = self.get_opponent(player)
 
@@ -131,7 +127,6 @@ class JanggiGame:
         self._board.save_board()
         captured_piece = self._mechanic.move_piece(piece, move_to)
         if self.is_in_check(self._player, exclude=captured_piece):
-            # print("game: recovering board") # debug
             self._board.recover_board()
             return False
         return True
@@ -145,21 +140,16 @@ class JanggiGame:
         opponent = self.get_opponent(player)
 
         if not self.is_in_check(opponent):
-            # print("check win: opponent " + opponent + " is not in check") # debug
             return False
 
-        # print("check win: " + opponent + " is in check") # debug
-        # print("check win: checking " + opponent + " piece moves to see if " + player + " won...") # debug
         for piece in self._pieces[opponent]:
-            # print("check win: checking moves for " + piece.get_name()) # debug
             for move in piece.get_moves():
-                old_loc = piece.get_loc() # debug
+                # old_loc = piece.get_loc() # debug
                 self._board.save_board()
                 self._mechanic.move_piece(piece, move)
                 if not self.is_in_check(opponent):
-                    print("check win: found move " + old_loc + " to " + move) # debug
+                    # print("check win: found move " + old_loc + " to " + move) # debug
                     self._board.recover_board()
-                    # self._board.print_board() # debug
                     return False
                 self._board.recover_board()
 
@@ -232,9 +222,6 @@ class JanggiGame:
                 self._in_check[player] = "Yes"
             else:
                 self._in_check[player] = "No"
-
-        # # print("make_move: is " + opponent + " in check? " + str(self.is_in_check(opponent))) # debug
-        # self.is_in_check(self._player) # debug
 
         self.update_turn()
         

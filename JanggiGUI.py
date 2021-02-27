@@ -24,7 +24,6 @@ blue_check = tk.StringVar()
 def update_board():
     clear_colors()
     b = g.get_board()
-    # b.print_board() # debug
 
     global turn, state, red_check, blue_check
 
@@ -35,7 +34,6 @@ def update_board():
     state.set(g.get_game_state())
     red_check.set("Red in check? " + g.get_in_check("R"))
     blue_check.set("Blue in check? " + g.get_in_check("B"))
-    # print("gui R in check: " + g.get_in_check("R")) # debug
 
     for name in board:
         piece = b.get_piece(name)
