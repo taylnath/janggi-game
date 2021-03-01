@@ -1199,10 +1199,12 @@ class JanggiGame:
 
         # return False if there is no piece at move_from
         if piece is None:
+            print("no piece here") # debug
             return False
 
         # if the piece is not owned by the current player, return False
         if piece.get_player() != self._player:
+            print("wrong player's piece. Current player: ", self._player) # debug
             return False
 
         # # if the destination piece is owned by the current player, return False
@@ -1213,16 +1215,19 @@ class JanggiGame:
         # update the turn and do nothing else
         if move_to == move_from:
             if self.is_in_check(self._player):
+                print("the current player must move") # debug
                 return False
             self.update_turn()
             return True
 
         # if the piece cannot move to the given location, return False
         if move_to not in piece.get_moves():
+            print("this piece cannot move like that") # debug
             return False
 
         # make the move, then undo if it puts the current player in check
         if not self.try_move(piece, move_to):
+            print("this move puts the general in check") # debug
             return False
 
         # check if the current player won
@@ -1248,18 +1253,77 @@ if __name__ == "__main__":
     g = JanggiGame()
     g.get_board().print_board()
 
-    mm(g, "b10", "d7")
-    mm(g, "d1", "e1")
-    mm(g, "d7", "f4")
-    mm(g, "h1", "g3")
-    mm(g, "f4", "f4")
-    mm(g, "e2", "d2")
-    mm(g, "f4", "f4")
-    mm(g, "g3", "e2")
-    mm(g, "f4", "f4")
-    mm(g, "d2", "d1")
-    mm(g, "f4", "f4")
-    mm(g, "e2", "f4")
+    mm(g, 'c7', 'c6')
+    mm(g, 'e4', 'f4')
+    mm(g, 'b10', 'd7')
+    mm(g, 'd1', 'd2')
+    mm(g, 'c10', 'c9') # not legal
+    mm(g, 'g4', 'h4')
+    mm(g, 'i10', 'i8')
+    mm(g, 'e2', 'f2')
+    mm(g, 'g7', 'h7')
+    mm(g, 'h3', 'h5')
+    mm(g, 'h7', 'g7')
+    mm(g, 'c1', 'e2')
+    mm(g, 'i7', 'i6')
+    mm(g, 'g1', 'e4')
+    mm(g, 'i6', 'h6')
+    mm(g, 'e4', 'b6')
+    mm(g, 'a10', 'a8')
+    mm(g, 'e2', 'd4')
+    mm(g, 'c6', 'b6')
+    mm(g, 'i4', 'i5')
+    mm(g, 'b8', 'b5')
+    mm(g, 'h4', 'g4')
+    mm(g, 'g7', 'f7')
+    mm(g, 'd4', 'e4')
+    mm(g, 'h10', 'g8')
+    mm(g, 'd2', 'd1')
+    mm(g, 'g8', 'f6')
+    mm(g, 'i5', 'h5')
+    mm(g, 'f6', 'h5')
+    mm(g, 'i1', 'i6')
+    mm(g, 'h6', 'i6')
+    mm(g, 'f2', 'f2')
+    mm(g, 'a8', 'c8')
+    mm(g, 'd1', 'e1')
+    mm(g, 'c8', 'c4')
+    mm(g, 'e2', 'd4')
+    mm(g, 'c4', 'd4')
+    mm(g, 'g4', 'g5')
+    mm(g, 'd4', 'f4')
+    mm(g, 'f2', 'e2')
+    mm(g, 'b6', 'c6')
+    mm(g, 'e2', 'd2')
+    mm(g, 'h5', 'g3')
+    mm(g, 'e1', 'd1')
+    mm(g, 'g3', 'h1')
+    mm(g, 'g5', 'h5')
+    mm(g, 'f4', 'f1')
+    mm(g, 'h5', 'g5')
+    mm(g, 'i6', 'i5')
+    mm(g, 'a1', 'a2')
+    mm(g, 'd7', 'f4')
+    mm(g, 'a4', 'b4')
+    mm(g, 'f4', 'd1')
+    mm(g, 'd2', 'e2')
+    mm(g, 'a2', 'a7')
+    mm(g, 'f1', 'd2')
+
+    print('done')
+    # mm(g, "b10", "d7")
+    # mm(g, "d1", "e1")
+    # mm(g, "d7", "f4")
+    # mm(g, "h1", "g3")
+    # mm(g, "f4", "f4")
+    # mm(g, "e2", "d2")
+    # mm(g, "f4", "f4")
+    # mm(g, "g3", "e2")
+    # mm(g, "f4", "f4")
+    # mm(g, "d2", "d1")
+    # mm(g, "f4", "f4")
+    # mm(g, "e2", "f4")
+
     # mm(g, "e7", "e6")
     # mm(g, "e4", "e5")
     # mm(g, "e6", "e5")
