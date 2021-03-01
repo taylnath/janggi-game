@@ -961,7 +961,7 @@ class JanggiMechanic:
         self._board.set_piece(piece, loc)
         return True
 
-    def move_piece(self, piece, loc:str):
+    def move_piece(self, piece, loc:str, opponent_pieces:list):
         """
         Moves the (piece) to the given location (loc).
         Returns the piece which was captured, or None 
@@ -980,7 +980,35 @@ class JanggiMechanic:
         # update new location
         piece.set_pos(loc)
 
+        # if a piece was captured, remove it from the opponent's piece list
+        if captured_piece in opponent_pieces:
+            opponent_pieces.remove(captured_piece)
+
         return captured_piece
+
+    def undo_move(self, captured_piece, capturers_loc:str, captured_loc:str,  piece_list:list):
+        """
+        Undoes the move from capturers_loc to captured_loc:
+        Returns the captured_piece back to the board, at the captured_loc. 
+        Does this by calling move_piece to move the capturer back to its previous position, 
+        then again calling move_piece to move the captured_piece back on the board. 
+        Finally, adds the captured_piece back to the appropriate team's list of pieces 
+        (piece_list). If captured_piece is None, this method just returns the "capturer"
+        to its previous location (capturers_loc). 
+        """
+
+        # get the capturer piece
+        capturer = self._board.get_piece(captured_loc)
+
+        # move the capturer back to its old position
+        self.move_piece(capturer, capturers_loc, [])
+
+        if captured_piece is not None:
+            # move the captured piece back to its old location
+            self.move_piece(captured_piece, captured_loc, [])
+
+            # add the captured piece back to the piece_list
+            piece_list.append(captured_piece)
 
 class JanggiGame:
     "A class to represent the Janggi game."
@@ -1101,10 +1129,17 @@ class JanggiGame:
         restores the board and returns False.
         """
 
-        self._board.save_board()
-        captured_piece = self._mechanic.move_piece(piece, move_to)
-        if self.is_in_check(self._player, exclude=captured_piece):
-            self._board.recover_board()
+        capturers_loc = piece.get_loc()
+
+        opponent = self.get_opponent(self._player)
+        opponent_pieces = self._pieces[opponent]
+
+        # self._board.save_board()
+        captured_piece = self._mechanic.move_piece(piece, move_to, opponent_pieces)
+
+        if self.is_in_check(self._player):
+            # self._board.recover_board()
+            self._mechanic.undo_move(captured_piece, capturers_loc, move_to, opponent_pieces)
             return False
         return True
 
@@ -1115,20 +1150,24 @@ class JanggiGame:
         """
 
         opponent = self.get_opponent(player)
+        opponent_pieces = self._pieces[opponent]
 
         if not self.is_in_check(opponent):
             return False
 
         for piece in self._pieces[opponent]:
+            capturers_loc = piece.get_loc()
             for move in piece.get_moves():
                 # old_loc = piece.get_loc() # debug
-                self._board.save_board()
-                self._mechanic.move_piece(piece, move)
+                # self._board.save_board()
+                captured_piece = self._mechanic.move_piece(piece, move, opponent_pieces)
                 if not self.is_in_check(opponent):
                     # print("check win: found move " + old_loc + " to " + move) # debug
-                    self._board.recover_board()
+                    # self._board.recover_board()
+                    self._mechanic.undo_move(captured_piece, capturers_loc, move, opponent_pieces)
                     return False
-                self._board.recover_board()
+                # self._board.recover_board()
+                self._mechanic.undo_move(captured_piece, capturers_loc, move, opponent_pieces)
 
         return True
 
@@ -1147,6 +1186,8 @@ class JanggiGame:
         Attempts to move a piece located at move_from location to 
         the move_to location.
         """
+
+        print("mm(g, '" + move_from + "', '" + move_to + "')") # debug
 
         # check the game state
         if self._state != 'UNFINISHED':
@@ -1184,24 +1225,43 @@ class JanggiGame:
         if not self.try_move(piece, move_to):
             return False
 
-        # if a piece was captured, remove it from the opponent's piece list
-        opponent = self.get_opponent(self._player)
-        if to_piece in self._pieces[opponent]:
-            self._pieces[opponent].remove(to_piece)
-
         # check if the current player won
         if self.check_if_player_won(self._player):
             self.declare_winner(self._player)
 
         # update whether each player is in check or not
-        for player in [self._player, opponent]:
+        for player in [self._player, self.get_opponent(self._player)]:
             if self.is_in_check(player):
                 self._in_check[player] = "Yes"
             else:
                 self._in_check[player] = "No"
 
         self.update_turn()
-        print("Red is in check?", self.is_in_check("Red")) #debug
-        print("Blue is in check?", self.is_in_check("Blue")) #debug
         
         return True
+
+if __name__ == "__main__":
+    def mm(game, from_loc, to_loc):
+        print(game.make_move(from_loc, to_loc))
+        game.get_board().print_board()
+
+    g = JanggiGame()
+    g.get_board().print_board()
+
+    mm(g, "b10", "d7")
+    mm(g, "d1", "e1")
+    mm(g, "d7", "f4")
+    mm(g, "h1", "g3")
+    mm(g, "f4", "f4")
+    mm(g, "e2", "d2")
+    mm(g, "f4", "f4")
+    mm(g, "g3", "e2")
+    mm(g, "f4", "f4")
+    mm(g, "d2", "d1")
+    mm(g, "f4", "f4")
+    mm(g, "e2", "f4")
+    # mm(g, "e7", "e6")
+    # mm(g, "e4", "e5")
+    # mm(g, "e6", "e5")
+    # mm(g, "e2", "e3")
+    # mm(g, "e5", "e4")
