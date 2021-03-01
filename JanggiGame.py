@@ -1201,5 +1201,7 @@ class JanggiGame:
                 self._in_check[player] = "No"
 
         self.update_turn()
+        print("Red is in check?", self.is_in_check("Red")) #debug
+        print("Blue is in check?", self.is_in_check("Blue")) #debug
         
         return True

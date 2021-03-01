@@ -1,5 +1,5 @@
 import tkinter as tk
-import JanggiGame
+import JanggiGameClass as JanggiGame
 
 g = JanggiGame.JanggiGame()
 
