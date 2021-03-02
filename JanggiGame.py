@@ -1257,7 +1257,8 @@ if __name__ == "__main__":
     mm(g, 'e4', 'f4')
     mm(g, 'b10', 'd7')
     mm(g, 'd1', 'd2')
-    mm(g, 'c10', 'c9') # not legal
+    mm(g, 'd10', 'd9') # debug
+    # mm(g, 'c10', 'c9') # not legal
     mm(g, 'g4', 'h4')
     mm(g, 'i10', 'i8')
     mm(g, 'e2', 'f2')
